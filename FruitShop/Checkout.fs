@@ -8,13 +8,13 @@ let parseProduct = function |"Apples" -> Apples |"Mele" -> Mele |"Pommes" -> Pom
 
 let applyReduction (products:Product list) total = 
     let count product = products |> Seq.filter ((=) product) |> Seq.length
+    let applyReduction total reduction = total + reduction()
     let cherries()  = -20 * (count Cerises / 2)
     let bananas()   = -priceOf Bananes * (count Bananes / 2)
     let apples()    = -(3 * priceOf Apples - 200) * (count Apples / 3)
     let mele()      = -100 * (count Mele / 2)
     let allApples() = -100 * ((count Mele + count Apples + count Pommes) / 4)
     let all()       = -200 * (products.Length / 5)
-    let applyReduction total reduction = total + reduction()
     [cherries; bananas; apples; mele; allApples; all] |> List.fold applyReduction total
 
 let computeResult products = products, products |> Seq.map priceOf |> Seq.sum |> applyReduction products
@@ -37,8 +37,9 @@ module Tests =
         let emptyBasket = []
 
         let check input expected basket = 
-            expected |> should equal (snd (checkout basket input))
-            basket
+            let newBasket, result = checkout basket input
+            expected |> should equal result
+            newBasket
 
         [<Fact>]
         let ``when adding products price apply step 6 reductions``() =
